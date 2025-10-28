@@ -1,3 +1,6 @@
 [submodule "dependencies/cxxopts"]
 	path = dependencies/cxxopts
 	url = https://github.com/jarro2783/cxxopts.git
+[submodule "include/eigen"]
+	path = include/eigen
+	url = https://gitlab.com/libeigen/eigen.git
