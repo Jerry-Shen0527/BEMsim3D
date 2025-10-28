@@ -1,15 +1,28 @@
-#include <unistd.h>
+#include <cxxopts.hpp>
 #include "constants.h"
 
 int main(int argc, char **argv) {
-    int opt, nx, ny;
-    string hname, zname;
-    while ((opt = getopt(argc, argv, "h:z:")) != -1) {
-        switch (opt) {
-            case 'h': hname = optarg; break;
-            case 'z': zname = optarg; break;
-        }
+    cxxopts::Options options("steerBasicDirs", "Determine basic incident directions");
+    options.add_options()
+        ("h,hex", "Hexagon file name", cxxopts::value<std::string>())
+        ("z,zvals", "Z-values file name", cxxopts::value<std::string>())
+        ("help", "Print help");
+
+    auto result = options.parse(argc, argv);
+
+    if (result.count("help")) {
+        cout << options.help() << endl;
+        return 0;
     }
+
+    if (!result.count("hex") || !result.count("zvals")) {
+        cout << "Error: missing required arguments" << endl;
+        cout << options.help() << endl;
+        return 1;
+    }
+
+    string hname = result["hex"].as<std::string>();
+    string zname = result["zvals"].as<std::string>();
     MatrixXd wi = readData("data/" + zname + "/wi.txt");
     MatrixXd hexagons = readData("include/hexagons/" + hname + ".txt");
     

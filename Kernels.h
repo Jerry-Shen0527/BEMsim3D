@@ -1,6 +1,8 @@
 #pragma once
+#define _USE_MATH_DEFINES
 #include <cuComplex.h>
 #include <cuda_runtime.h>
+#include <cmath>
 #include <cufft.h>
 #include <cufftXt.h>
 #include <cusparse.h>

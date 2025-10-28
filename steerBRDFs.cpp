@@ -1,4 +1,4 @@
-#include <unistd.h>
+#include <cxxopts.hpp>
 #include "constants.h"
 #include "parallel.h"
 
@@ -53,23 +53,47 @@ MatrixXcd gaussianBeam(double x0, double y0, double z0, dcomp scale, int polariz
 }
 
 int main(int argc, char **argv) {
-    int opt, color, dir, nx, ny, outres;
-    double exterior, w_um, x_um, y_um;
-    string zname;
-    while ((opt = getopt(argc, argv, "c:d:e:m:n:o:w:x:y:z:")) != -1) {
-        switch (opt) {
-            case 'c': color = atoi(optarg); break;
-            case 'd': dir = atoi(optarg); break;
-            case 'e': exterior = atof(optarg); break;
-            case 'm': nx = atoi(optarg); break;
-            case 'n': ny = atoi(optarg); break;
-            case 'o': outres = atoi(optarg); break;
-            case 'w': w_um = atof(optarg); break;
-            case 'x': x_um = atof(optarg); break;
-            case 'y': y_um = atof(optarg); break;
-            case 'z': zname = optarg; break;
-        }
+    cxxopts::Options options("steerBRDFs", "Compute BRDF values for incident directions");
+    options.add_options()
+        ("c,color", "Color index", cxxopts::value<int>())
+        ("d,dir", "Direction index", cxxopts::value<int>())
+        ("e,exterior", "Exterior permittivity", cxxopts::value<double>())
+        ("m,xres", "X resolution", cxxopts::value<int>())
+        ("n,yres", "Y resolution", cxxopts::value<int>())
+        ("o,outres", "Output resolution", cxxopts::value<int>())
+        ("w,waist", "Beam waist (um)", cxxopts::value<double>())
+        ("x,xpos", "X position (um)", cxxopts::value<double>())
+        ("y,ypos", "Y position (um)", cxxopts::value<double>())
+        ("z,zvals", "Z-values file name", cxxopts::value<std::string>())
+        ("help", "Print help");
+
+    auto result = options.parse(argc, argv);
+
+    if (result.count("help")) {
+        cout << options.help() << endl;
+        return 0;
     }
+
+    // Check required arguments
+    if (!result.count("color") || !result.count("dir") || !result.count("exterior") ||
+        !result.count("xres") || !result.count("yres") || !result.count("outres") ||
+        !result.count("waist") || !result.count("xpos") || !result.count("ypos") ||
+        !result.count("zvals")) {
+        cout << "Error: missing required arguments" << endl;
+        cout << options.help() << endl;
+        return 1;
+    }
+
+    int color = result["color"].as<int>();
+    int dir = result["dir"].as<int>();
+    double exterior = result["exterior"].as<double>();
+    int nx = result["xres"].as<int>();
+    int ny = result["yres"].as<int>();
+    int outres = result["outres"].as<int>();
+    double w_um = result["waist"].as<double>();
+    double x_um = result["xpos"].as<double>();
+    double y_um = result["ypos"].as<double>();
+    string zname = result["zvals"].as<std::string>();
 
     // Determine the considered Gaussian beam parameters
     MatrixXd wvl = readData("data/" + zname + "/wvl.txt");
