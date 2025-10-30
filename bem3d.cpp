@@ -55,8 +55,8 @@ int main(int argc, char **argv)
         dir = result["dir"].as<int>();
         exterior = result["exterior"].as<double>();
         l_um = result["length"].as<double>();
-        nx = result["nx"].as<int>();
-        ny = result["ny"].as<int>();
+        nx = result.count("nx") ? result["nx"].as<int>() : 1;
+        ny = result.count("ny") ? result["ny"].as<int>() : 1;
         outres = result["outres"].as<int>();
         w_um = result["width"].as<double>();
         zname = result["zname"].as<string>();
